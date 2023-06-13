@@ -906,7 +906,10 @@ impl Log for Logger {
     }
 
     fn log(&self, record: &Record) {
-        if self.matches(record) {
+        let max_packet_size = 65000;
+        let message = format!("{:#?}", record.args());
+
+        if self.matches(record) && message.as_bytes().len() < max_packet_size {
             match record.level() {
                 Level::Error => tracing::event!(
                     tracing::Level::ERROR,
