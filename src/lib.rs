@@ -907,36 +907,17 @@ impl Log for Logger {
 
     fn log(&self, record: &Record) {
         let max_packet_size = 65000;
-        let message = format!("{:#?}", record.args());
 
-        if self.matches(record) && message.as_bytes().len() < max_packet_size {
-            match record.level() {
-                Level::Error => tracing::event!(
-                    tracing::Level::ERROR,
-                    target = record.target(),
-                    message = format!("{:#?}", record.args())
-                ),
-
-                Level::Warn => tracing::event!(
-                    tracing::Level::WARN,
-                    target = record.target(),
-                    message = format!("{:#?}", record.args())
-                ),
-                Level::Info => tracing::event!(
-                    tracing::Level::INFO,
-                    target = record.target(),
-                    message = format!("{:#?}", record.args())
-                ),
-                Level::Debug => tracing::event!(
-                    tracing::Level::DEBUG,
-                    target = record.target(),
-                    message = format!("{:#?}", record.args())
-                ),
-                Level::Trace => tracing::event!(
-                    tracing::Level::TRACE,
-                    target = record.target(),
-                    message = format!("{:#?}", record.args())
-                ),
+        if self.matches(record) {
+            let message = format!("{:#?}", record.args());
+            if message.as_bytes().len() < max_packet_size {
+                match record.level() {
+                    Level::Error => tracing::error!(message),
+                    Level::Warn => tracing::warn!(message),
+                    Level::Info => tracing::info!(message),
+                    Level::Debug => tracing::debug!(message),
+                    Level::Trace => tracing::trace!(message),
+                }
             }
 
             // Log records are written to a thread-local buffer before being printed
