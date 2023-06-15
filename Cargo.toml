@@ -1,6 +1,6 @@
 [package]
 name = "ros_logger"
-version = "0.1.2"
+version = "0.1.4"
 description = """
 A logging implementation for `log` which is configured via an environment
 variable and creates tracing events for opentelemetry subscribers to subscribe to.
