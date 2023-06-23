@@ -900,6 +900,13 @@ impl Logger {
     }
 }
 
+struct Source {
+    line_no: u32,
+    file_path: String,
+    namespace: String,
+    target: String,
+}
+
 impl Log for Logger {
     fn enabled(&self, metadata: &Metadata) -> bool {
         self.filter.enabled(metadata)
@@ -910,13 +917,60 @@ impl Log for Logger {
 
         if self.matches(record) {
             let message = format!("{:#?}", record.args());
+
+            let src = Source {
+                line_no: record.line().unwrap_or(0),
+                file_path: record.file().unwrap_or("default").to_string(),
+                namespace: record.module_path().unwrap_or("default").to_string(),
+                target: record.target().to_string(),
+            };
             if message.as_bytes().len() < max_packet_size {
                 match record.level() {
-                    Level::Error => tracing::error!(message),
-                    Level::Warn => tracing::warn!(message),
-                    Level::Info => tracing::info!(message),
-                    Level::Debug => tracing::debug!(message),
-                    Level::Trace => tracing::trace!(message),
+                    Level::Error => {
+                        tracing::error!(
+                            message,
+                            src.line_no,
+                            src.file_path,
+                            src.namespace,
+                            src.target
+                        )
+                    }
+                    Level::Warn => {
+                        tracing::warn!(
+                            message,
+                            src.line_no,
+                            src.file_path,
+                            src.namespace,
+                            src.target
+                        )
+                    }
+                    Level::Info => {
+                        tracing::info!(
+                            message,
+                            src.line_no,
+                            src.file_path,
+                            src.namespace,
+                            src.target
+                        )
+                    }
+                    Level::Debug => {
+                        tracing::debug!(
+                            message,
+                            src.line_no,
+                            src.file_path,
+                            src.namespace,
+                            src.target
+                        )
+                    }
+                    Level::Trace => {
+                        tracing::trace!(
+                            message,
+                            src.line_no,
+                            src.file_path,
+                            src.namespace,
+                            src.target
+                        )
+                    }
                 }
             }
 
